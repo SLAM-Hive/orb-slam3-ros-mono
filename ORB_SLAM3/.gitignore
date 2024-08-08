@@ -81,6 +81,7 @@ TrackLocalMapStats.txt
 TrackingTimeStats.txt
 time*
 Time*
+!timeutil*
 Table_Euroc
 Table_TUMVI_rooms/
 *.pyc
