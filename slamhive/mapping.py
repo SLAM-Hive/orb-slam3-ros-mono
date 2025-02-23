@@ -5,17 +5,27 @@ config_raw = open("/slamhive/config.yaml",'r',encoding="UTF-8").read()
 config_dict = yaml.load(config_raw, Loader=yaml.FullLoader)
 algo_dict = config_dict["algorithm-parameters"]
 datatset_dict = config_dict["dataset-parameters"]
+general_dict = config_dict["general-parameter"]
 all_dict = {}
 for key, value in algo_dict.items():
     all_dict.update({key: value})
 for key, value in datatset_dict.items():
     all_dict.update({key: value})
+# change fps
+all_dict['fps'] = int(all_dict['fps'])
 template_raw = Template(open("/slamhive/template.yaml",'r',encoding="UTF-8").read())
 # template = template_raw.safe_substitute(config_parsed)#Replaces existing dictionary values, preserving non-existing replacement symbols.
 template = template_raw.substitute(all_dict)#An exception occurs when all parameter values required by the template are not provided.
 # Write template to mappingtask.yaml
 with open("/slamhive/mappingtask.yaml","w") as f:
     f.write(template)
+
+save_map = False
+if general_dict is not None:
+    for key, value in general_dict.items():
+        if key == "save_map":
+            if value == 1 or value == "1":
+                save_map = True
 
 # Read algorithm-remap from config.yaml for mono.launch
 algo_remap_dict = config_dict["algorithm-remap"]
@@ -27,9 +37,14 @@ roslaunch_command = "roslaunch /slamhive/mono.launch " + algo_remap
 subprocess.run("bash -c 'source /opt/ros/melodic/setup.bash; \
                 rosparam set use_sim_time true; "
                 + roslaunch_command 
-                + " & sleep 10s ; \
+                + " & sleep 20s ; \
                 python3 /slamhive/dataset/rosbag_play.py; \
+                sleep 5s ; \
                 rosnode kill -a ; \
-                mv /home/ORB_SLAM3/Examples/ROS/ORB_SLAM3/KeyFrameTrajectory.txt /slamhive/result/traj.txt; \
-                touch /slamhive/result/finished'", shell=True)
+                sleep 5s ; \
+                mv /home/ORB_SLAM3/Examples/ROS/ORB_SLAM3/KeyFrameTrajectory.txt /slamhive/result/traj.txt;'", shell=True)
+                
+if save_map :
+    subprocess.run("bash -c 'mv /home/ORB_SLAM3/Examples/ROS/ORB_SLAM3/Map.pcd /slamhive/result/Map.pcd;'", shell=True)
+subprocess.run("bash -c 'touch /slamhive/result/finished ;'", shell=True)
 

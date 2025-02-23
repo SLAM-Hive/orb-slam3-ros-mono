@@ -33,8 +33,10 @@ Camera1.p2: $p2
 Camera.width: $width # 752
 Camera.height: $height # 480
 
-Camera.newWidth: $newWidth # 600
-Camera.newHeight: $newHeight # 350
+## Camera.newWidth: $newWidth # 600
+## Camera.newHeight: $newHeight # 350
+$useNewWidth: $newWidth # 600
+$useNewHeight: $newHeight # 350
 
 # Camera frames per second 
 Camera.fps: $fps

@@ -167,6 +167,10 @@ public:
     // See format details at: http://www.cvlibs.net/datasets/kitti/eval_odometry.php
     void SaveTrajectoryKITTI(const string &filename);
 
+
+    //ADD
+    void SaveMap(const string &filename);
+
     // TODO: Save/Load functions
     // SaveMap(const string &filename);
     // LoadMap(const string &filename);
@@ -262,6 +266,8 @@ private:
     string mStrVocabularyFilePath;
 
     Settings* settings_;
+
+
 };
 
 }// namespace ORB_SLAM

@@ -1545,5 +1545,65 @@ string System::CalculateCheckSum(string filename, int type)
     return checksum;
 }
 
+ void System::SaveMap(const string &filename)  
+{  
+    Map* pActiveMap = mpAtlas->GetCurrentMap();
+    if(!pActiveMap) {
+        cout << "can not save map" << endl;
+        return;
+    }
+
+
+    const vector<MapPoint*> &vpMPs = pActiveMap->GetAllMapPoints();
+    const vector<MapPoint*> &vpRefMPs = pActiveMap->GetReferenceMapPoints();
+
+    set<MapPoint*> spRefMPs(vpRefMPs.begin(), vpRefMPs.end());
+
+    cerr<<"Map Saving to "<<filename <<endl;
+
+    ofstream f;
+
+    unsigned long int  point_number = 0;
+
+    for(set<MapPoint*>::iterator sit=spRefMPs.begin(), send=spRefMPs.end(); sit!=send; sit++)
+    {
+        if((*sit)->isBad())
+            continue;
+        point_number++;
+        // 求出有效点的数量
+    }
+
+    f.open(filename.c_str());
+    //写入基本信息
+    f << "# .PCD v0.7 - Point Cloud Data file format" << endl;
+    f << "VERSION 0.7" << endl;
+    f << "FIELDS x y z" << endl;
+    f << "SIZE 4 4 4" << endl;
+    f << "TYPE F F F" << endl;
+    f << "COUNT 1 1 1" << endl;
+    f << "WIDTH " << point_number << endl;
+    f << "HEIGHT 1" << endl;
+    f << "VIEWPOINT 0 0 0 1 0 0 0" << endl;
+    f << "POINTS " << point_number << endl;
+    f << "DATA ascii" << endl;
+    
+    // 写入点云数据
+
+    for(set<MapPoint*>::iterator sit=spRefMPs.begin(), send=spRefMPs.end(); sit!=send; sit++)
+    {
+        if((*sit)->isBad())
+            continue;
+        Eigen::Matrix<float,3,1> pos = (*sit)->GetWorldPos();
+        glVertex3f(pos(0),pos(1),pos(2));
+        f << pos(0) << " " << pos(1) << " " << pos(2) << endl;
+    }
+
+
+    f.close();
+
+
+    cerr<<"Map Saving Finished!"<<endl;
+}
+
 } //namespace ORB_SLAM
 
